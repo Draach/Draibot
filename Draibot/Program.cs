@@ -16,9 +16,12 @@ public class Program
 
     public async Task MainAsync(string[] args)
     {
+        if(args.Length < 1 || string.IsNullOrEmpty(args[0]))
+        {
+            throw new Exception($"Argument cannot be null or empty: bot_token");
+        }
 
-        string? botToken = Environment.GetEnvironmentVariable("bot_token");
-        if (string.IsNullOrEmpty(botToken)) throw new Exception($"Argument cannot be null or empty: {nameof(botToken)}");
+        string botToken = args[0];
 
         client = new DiscordSocketClient();
         commandService = new CommandService();

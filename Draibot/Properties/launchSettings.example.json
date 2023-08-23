@@ -2,9 +2,7 @@
   "profiles": {
     "Draibot": {
       "commandName": "Project",
-      "environmentVariables": {
-        "bot_token": "YOUR_DISCORD_BOT_TOKEN_HERE"
-      }
+      "commandLineArgs": "YOUR_DISCORD_BOT_TOKEN_HERE"
     }
   }
 }
