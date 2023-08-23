@@ -1,0 +1,60 @@
+# .gitignore for C# Console Application
+
+# Compiled files
+bin/
+obj/
+
+# User-specific files
+.vscode/
+.vs/
+.idea/
+*.userprefs
+*.suo
+*.user
+*.sln.docstates
+
+# Package directories used by NuGet
+packages/
+
+# Local configuration files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+launchSettings.json
+
+# Environment variables file
+.env
+
+# Visual Studio files
+.vscode/
+*.sln.ide
+*.suo
+*.userprefs
+
+# Visual Studio Code configuration
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# macOS specific files
+.DS_Store
+
+# JetBrains Rider specific files
+.idea/
+*.sln.iml
+
+# Rider .NET Core plugin
+_dotnetcli/
+
+# Resharper specific files
+_ReSharper.*
+
+# NuGet Config
+NuGet.config
+
+# Log files
+*.log
+
+# User-specific files
+UserSecrets/
+*.user
