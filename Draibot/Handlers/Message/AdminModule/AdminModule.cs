@@ -4,9 +4,9 @@ using Discord.Commands;
 
 namespace Draibot;
 
-[RequireOwner(Group = "Permission")]
 public class AdminModule : ModuleBase<SocketCommandContext>
 {
+    [RequireOwner]
     [Command("SetActivityAsync")]
     public Task SetActivityAsync(string type, string name)
     {
