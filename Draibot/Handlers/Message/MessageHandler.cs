@@ -1,16 +1,17 @@
-﻿
+﻿using System.Diagnostics;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Reflection;
 
 namespace Draibot
 {
-    internal class CommandHandler
+    internal class MessageHandler
     {
+        private readonly char charPrefix = '!';
         private readonly DiscordSocketClient client;
         private readonly CommandService commandService;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commandService)
+        public MessageHandler(DiscordSocketClient client, CommandService commandService)
         {
             this.commandService = commandService;
             this.client = client;
@@ -30,26 +31,28 @@ namespace Draibot
             // If you do not use Dependency Injection, pass null.
             // See Dependency Injection guide for more information.
             await commandService.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
-                                            services: null);
+                services: null);
         }
 
         private async Task HandleCommandAsync(SocketMessage messageParam)
         {
             // Don't process the command if it was a system message
-            var message = messageParam as SocketUserMessage;
+            SocketUserMessage? message = messageParam as SocketUserMessage;
             if (message == null) return;
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(message.HasCharPrefix('!', ref argPos) ||
-                message.HasMentionPrefix(client.CurrentUser, ref argPos)) ||
+            if (!(message.HasCharPrefix(charPrefix, ref argPos) ||
+                  message.HasMentionPrefix(client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
                 return;
 
+            Console.WriteLine($"[Message Received] Author: {message.Author} | Content: {message.Content}");
+
             // Create a WebSocket-based command context based on the message
-            var context = new SocketCommandContext(client, message);
+            SocketCommandContext context = new SocketCommandContext(client, message);
 
             // Execute the command with the command context we just
             // created, along with the service provider for precondition checks.
