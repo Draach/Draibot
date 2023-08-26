@@ -35,7 +35,6 @@ namespace Draibot
                 // Handle the exception or log it.
             }
         }
-
         private async Task RunAsync(string[] args)
         {
             if (!ValidateBotTokenArgument(args, out string botToken))
@@ -126,11 +125,10 @@ namespace Draibot
                 List<SlashCommandOptionBuilder> addBirthdayCommandOptions = new List<SlashCommandOptionBuilder>();
                 addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
                 {
-                    Name = "nombre",
-                    Type = ApplicationCommandOptionType.String,
-                    Description = "El nombre del cumpleañero.",
+                    Name = "usuario",
+                    Type = ApplicationCommandOptionType.User,
+                    Description = "El usuario de la persona que cumple años.",
                     IsRequired = true,
-                    MaxLength = 50,
                 });
                 addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
                 {
@@ -138,6 +136,7 @@ namespace Draibot
                     Type = ApplicationCommandOptionType.String,
                     Description = "La fecha de cumpleaños en formato DD/MM/YYYY",
                     IsRequired = true,
+                    MinLength = 10,
                     MaxLength = 10,
                 });
                 SlashCommandBuilder addBirthdayCommand = new SlashCommandBuilder();
