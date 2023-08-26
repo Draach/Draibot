@@ -126,7 +126,7 @@ namespace Draibot
                 List<SlashCommandOptionBuilder> addBirthdayCommandOptions = new List<SlashCommandOptionBuilder>();
                 addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
                 {
-                    Name = "Nombre",
+                    Name = "nombre",
                     Type = ApplicationCommandOptionType.String,
                     Description = "El nombre del cumpleañero.",
                     IsRequired = true,
@@ -134,7 +134,7 @@ namespace Draibot
                 });
                 addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
                 {
-                    Name = "Fecha",
+                    Name = "fecha",
                     Type = ApplicationCommandOptionType.String,
                     Description = "La fecha de cumpleaños en formato DD/MM/YYYY",
                     IsRequired = true,
