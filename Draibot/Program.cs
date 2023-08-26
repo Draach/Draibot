@@ -35,7 +35,6 @@ namespace Draibot
                 // Handle the exception or log it.
             }
         }
-
         private async Task RunAsync(string[] args)
         {
             if (!ValidateBotTokenArgument(args, out string botToken))

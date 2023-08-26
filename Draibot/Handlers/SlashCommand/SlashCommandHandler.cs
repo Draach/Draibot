@@ -74,6 +74,7 @@ namespace Draibot
 
         private async Task AddBirthday(SocketSlashCommand command)
         {
+            Console.WriteLine($"Adding birthday.");
             SocketUser birthdayTargetSocketUser = (SocketUser)command.Data.Options.ElementAt(0).Value;
             string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
             DateTime parsedDate;
