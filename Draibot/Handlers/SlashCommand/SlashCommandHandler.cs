@@ -1,13 +1,13 @@
 ﻿using System.Text;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 namespace Draibot
 {
-    internal class UserBirthDate
+    internal class UserBirthday
     {
+        public ulong? GuildID;
         public string Name;
         public int Day;
         public int Month;
@@ -17,7 +17,7 @@ namespace Draibot
     internal class SlashCommandHandler
     {
         private DiscordSocketClient discordSocketClient;
-        private List<UserBirthDate> birthDates = new();
+        private List<UserBirthday> birthdays = new();
 
         public SlashCommandHandler(DiscordSocketClient discordSocketClient)
         {
@@ -52,10 +52,11 @@ namespace Draibot
         private async Task GetBirthdays(SocketSlashCommand command)
         {
             StringBuilder birthdaysBuilder = new StringBuilder();
-            foreach (UserBirthDate userBirthDate in birthDates)
+            foreach (UserBirthday userBirthDate in birthdays)
             {
-                birthdaysBuilder.Append(
-                    $"{userBirthDate.Name} - {userBirthDate.Day}/{userBirthDate.Month}/{userBirthDate.Year}\n");
+                if (userBirthDate.GuildID == command.GuildId)
+                    birthdaysBuilder.Append(
+                        $"{userBirthDate.Name} - {userBirthDate.Day}/{userBirthDate.Month}/{userBirthDate.Year}\n");
             }
 
             await command.RespondAsync($"Lista de Cumpleaños:\n{birthdaysBuilder}");
@@ -75,15 +76,16 @@ namespace Draibot
             string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
             DateTime parsedDate = DateTime.ParseExact(birthDate, "dd/MM/yyyy", null);
             // By now we store them in memory, replace with database later.
-            UserBirthDate userBirthDate = new UserBirthDate();
+            UserBirthday userBirthday = new UserBirthday();
             Console.WriteLine($"{parsedDate.Day} {parsedDate.Month} {parsedDate.Year}");
-            userBirthDate.Name = command.Data.Options.ElementAt(0).Value.ToString()!;
-            userBirthDate.Day = parsedDate.Day;
-            userBirthDate.Month = parsedDate.Month;
-            userBirthDate.Year = parsedDate.Year;
+            userBirthday.GuildID = command.GuildId;
+            userBirthday.Name = command.Data.Options.ElementAt(0).Value.ToString()!;
+            userBirthday.Day = parsedDate.Day;
+            userBirthday.Month = parsedDate.Month;
+            userBirthday.Year = parsedDate.Year;
 
-            birthDates.Add(userBirthDate);
-            
+            birthdays.Add(userBirthday);
+
             await command.RespondAsync($"Cumpleaños registrado con éxito!");
         }
 
