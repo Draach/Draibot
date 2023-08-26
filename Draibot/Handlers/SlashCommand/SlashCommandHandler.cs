@@ -1,13 +1,16 @@
 ﻿using System.Text;
 using Discord;
 using Discord.WebSocket;
+using Draibot.Utils;
 using Newtonsoft.Json;
 
 namespace Draibot
 {
-    internal class UserBirthday
+    public class UserBirthday
     {
         public ulong? GuildID;
+        public ulong UserID;
+        public string UserMention;
         public string Name;
         public int Day;
         public int Month;
@@ -17,7 +20,6 @@ namespace Draibot
     internal class SlashCommandHandler
     {
         private DiscordSocketClient discordSocketClient;
-        private List<UserBirthday> birthdays = new();
 
         public SlashCommandHandler(DiscordSocketClient discordSocketClient)
         {
@@ -31,7 +33,6 @@ namespace Draibot
 
         private async Task HandleSlashCommands(SocketSlashCommand command)
         {
-            // Let's add a switch statement for the command name so we can handle multiple commands in one event.
             switch (command.Data.Name)
             {
                 case "list-roles":
@@ -46,17 +47,26 @@ namespace Draibot
                 case "listar-cumpleaños":
                     await GetBirthdays(command);
                     break;
+                default:
+                    await command.RespondAsync("Lo siento, parece que el comando ingresado no es válido.");
+                    break;
             }
         }
 
         private async Task GetBirthdays(SocketSlashCommand command)
         {
             StringBuilder birthdaysBuilder = new StringBuilder();
-            foreach (UserBirthday userBirthDate in birthdays)
+            List<UserBirthday> userBirthdays = JsonUtils.ReadFromJson();
+            foreach (UserBirthday userBirthday in userBirthdays)
             {
-                if (userBirthDate.GuildID == command.GuildId)
+                if (userBirthday.GuildID == command.GuildId)
+                {
+                    string day = userBirthday.Day > 9 ? userBirthday.Day.ToString() : $"0{userBirthday.Day}";
+                    string month = userBirthday.Month > 9 ? userBirthday.Month.ToString() : $"0{userBirthday.Month}";
+
                     birthdaysBuilder.Append(
-                        $"{userBirthDate.Name} - {userBirthDate.Day}/{userBirthDate.Month}/{userBirthDate.Year}\n");
+                        $"{userBirthday.Name} - {day}/{month}\n");
+                }
             }
 
             await command.RespondAsync($"Lista de Cumpleaños:\n{birthdaysBuilder}");
@@ -64,27 +74,29 @@ namespace Draibot
 
         private async Task AddBirthday(SocketSlashCommand command)
         {
-            Console.WriteLine($"GuildId: {command.GuildId} | ChannelId: {command.ChannelId}.");
-            Console.WriteLine($"Command name: {command.Data.Name}");
-            Console.WriteLine($"Options:");
-            foreach (SocketSlashCommandDataOption socketSlashCommandDataOption in command.Data.Options)
+            SocketUser birthdayTargetSocketUser = (SocketUser)command.Data.Options.ElementAt(0).Value;
+            string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
+            DateTime parsedDate;
+            try
             {
-                Console.WriteLine(
-                    $"Option name: {socketSlashCommandDataOption.Name} | value: {socketSlashCommandDataOption.Value}");
+                parsedDate = DateTime.ParseExact(birthDate, "dd/MM/yyyy", null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fecha de cumpleaños inválida.");
             }
 
-            string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
-            DateTime parsedDate = DateTime.ParseExact(birthDate, "dd/MM/yyyy", null);
-            // By now we store them in memory, replace with database later.
             UserBirthday userBirthday = new UserBirthday();
             Console.WriteLine($"{parsedDate.Day} {parsedDate.Month} {parsedDate.Year}");
             userBirthday.GuildID = command.GuildId;
-            userBirthday.Name = command.Data.Options.ElementAt(0).Value.ToString()!;
+            userBirthday.UserID = birthdayTargetSocketUser.Id;
+            userBirthday.UserMention = birthdayTargetSocketUser.Mention;
+            userBirthday.Name = birthdayTargetSocketUser.GlobalName;
             userBirthday.Day = parsedDate.Day;
             userBirthday.Month = parsedDate.Month;
             userBirthday.Year = parsedDate.Year;
 
-            birthdays.Add(userBirthday);
+            JsonUtils.AddBirthdayToBirthdaysJson(userBirthday);
 
             await command.RespondAsync($"Cumpleaños registrado con éxito!");
         }
