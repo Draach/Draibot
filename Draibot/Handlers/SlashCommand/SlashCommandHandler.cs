@@ -1,12 +1,23 @@
-﻿using Discord;
+﻿using System.Text;
+using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 namespace Draibot
 {
+    internal class UserBirthDate
+    {
+        public string Name;
+        public int Day;
+        public int Month;
+        public int Year;
+    }
+
     internal class SlashCommandHandler
     {
         private DiscordSocketClient discordSocketClient;
+        private List<UserBirthDate> birthDates = new();
 
         public SlashCommandHandler(DiscordSocketClient discordSocketClient)
         {
@@ -27,9 +38,53 @@ namespace Draibot
                     await HandleListRoleCommand(command);
                     break;
                 case "hora-argentina":
-                    await HoraArgentina(command);
+                    await TimeArgentina(command);
+                    break;
+                case "agregar-cumpleaños":
+                    await AddBirthday(command);
+                    break;
+                case "lista-cumpleaños":
+                    await GetBirthdays(command);
                     break;
             }
+        }
+
+        private async Task GetBirthdays(SocketSlashCommand command)
+        {
+            StringBuilder birthdaysBuilder = new StringBuilder();
+            foreach (UserBirthDate userBirthDate in birthDates)
+            {
+                birthdaysBuilder.Append(
+                    $"{userBirthDate.Name} - {userBirthDate.Day}/{userBirthDate.Month}/{userBirthDate.Year}\n");
+            }
+
+            await command.RespondAsync($"Lista de Cumpleaños:\n{birthdaysBuilder}");
+        }
+
+        private async Task AddBirthday(SocketSlashCommand command)
+        {
+            Console.WriteLine($"GuildId: {command.GuildId} | ChannelId: {command.ChannelId}.");
+            Console.WriteLine($"Command name: {command.Data.Name}");
+            Console.WriteLine($"Options:");
+            foreach (SocketSlashCommandDataOption socketSlashCommandDataOption in command.Data.Options)
+            {
+                Console.WriteLine(
+                    $"Option name: {socketSlashCommandDataOption.Name} | value: {socketSlashCommandDataOption.Value}");
+            }
+
+            string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
+            DateTime parsedDate = DateTime.ParseExact(birthDate, "dd/MM/yyyy", null);
+            // By now we store them in memory, replace with database later.
+            UserBirthDate userBirthDate = new UserBirthDate();
+            Console.WriteLine($"{parsedDate.Day} {parsedDate.Month} {parsedDate.Year}");
+            userBirthDate.Name = command.Data.Options.ElementAt(0).Value.ToString()!;
+            userBirthDate.Day = parsedDate.Day;
+            userBirthDate.Month = parsedDate.Month;
+            userBirthDate.Year = parsedDate.Year;
+
+            birthDates.Add(userBirthDate);
+            
+            await command.RespondAsync($"Cumpleaños registrado con éxito!");
         }
 
         private async Task HandleListRoleCommand(SocketSlashCommand command)
@@ -52,7 +107,7 @@ namespace Draibot
                 embed: embedBuiler.Build());
         }
 
-        private async Task HoraArgentina(SocketSlashCommand command)
+        private async Task TimeArgentina(SocketSlashCommand command)
         {
             DateTimeInfo dateTimeInfo = null;
 

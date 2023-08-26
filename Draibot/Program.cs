@@ -122,6 +122,35 @@ namespace Draibot
                     .WithDescription("Devuelve la hora actual en Argentina.");
                 applicationCommandProperties.Add(timeArgentinaCommand.Build());
 
+                // TODO: Refactor/remove from here.
+                List<SlashCommandOptionBuilder> addBirthdayCommandOptions = new List<SlashCommandOptionBuilder>();
+                addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
+                {
+                    Name = "Nombre",
+                    Type = ApplicationCommandOptionType.String,
+                    Description = "El nombre del cumpleañero.",
+                    IsRequired = true,
+                    MaxLength = 50,
+                });
+                addBirthdayCommandOptions.Add(new SlashCommandOptionBuilder()
+                {
+                    Name = "Fecha",
+                    Type = ApplicationCommandOptionType.String,
+                    Description = "La fecha de cumpleaños en formato DD/MM/YYYY",
+                    IsRequired = true,
+                    MaxLength = 10,
+                });
+                SlashCommandBuilder addBirthdayCommand = new SlashCommandBuilder();
+                addBirthdayCommand.WithName("agregar-cumpleaños")
+                    .WithDescription("Registra un cumpleaños.")
+                    .AddOptions(addBirthdayCommandOptions.ToArray());
+                applicationCommandProperties.Add(addBirthdayCommand.Build());
+
+                SlashCommandBuilder getBirthdays = new SlashCommandBuilder();
+                getBirthdays.WithName("listar-cumpleaños")
+                    .WithDescription("Muestra la lista de cumpleaños del servidor.");
+                applicationCommandProperties.Add(getBirthdays.Build());
+
                 // With global commands we don't need the guild.
                 await discordSocketClient.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommandProperties
                     .ToArray());
