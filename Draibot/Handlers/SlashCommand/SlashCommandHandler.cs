@@ -43,7 +43,7 @@ namespace Draibot
                 case "agregar-cumpleaños":
                     await AddBirthday(command);
                     break;
-                case "lista-cumpleaños":
+                case "listar-cumpleaños":
                     await GetBirthdays(command);
                     break;
             }
