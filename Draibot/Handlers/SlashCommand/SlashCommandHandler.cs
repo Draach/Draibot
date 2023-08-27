@@ -12,9 +12,7 @@ namespace Draibot
         public ulong UserID;
         public string UserMention;
         public string Name;
-        public int Day;
-        public int Month;
-        public int Year;
+        public DateTime BirthDate;
     }
 
     internal class SlashCommandHandler
@@ -56,13 +54,18 @@ namespace Draibot
         private async Task GetBirthdays(SocketSlashCommand command)
         {
             StringBuilder birthdaysBuilder = new StringBuilder();
-            List<UserBirthday> userBirthdays = JsonUtils.ReadFromJson();
-            foreach (UserBirthday userBirthday in userBirthdays)
+            SortedDictionary<DateTime, List<UserBirthday>> userBirthdays = JsonUtils.ReadFromJson();
+            var sortedBirthdays = userBirthdays.OrderBy(pair => new DateTime(1, pair.Key.Month, pair.Key.Day)).ToList();
+            foreach (KeyValuePair<DateTime,List<UserBirthday>> userBirthdayKeyValuePair in sortedBirthdays)
             {
-                if (userBirthday.GuildID == command.GuildId)
+                foreach (UserBirthday userBirthday in userBirthdayKeyValuePair.Value)
                 {
-                    string day = userBirthday.Day > 9 ? userBirthday.Day.ToString() : $"0{userBirthday.Day}";
-                    string month = userBirthday.Month > 9 ? userBirthday.Month.ToString() : $"0{userBirthday.Month}";
+                    string day = userBirthday.BirthDate.Day > 9
+                        ? userBirthday.BirthDate.Day.ToString()
+                        : $"0{userBirthday.BirthDate.Day}";
+                    string month = userBirthday.BirthDate.Month > 9
+                        ? userBirthday.BirthDate.Month.ToString()
+                        : $"0{userBirthday.BirthDate.Month}";
 
                     birthdaysBuilder.Append(
                         $"{userBirthday.Name} - {day}/{month}\n");
@@ -74,7 +77,6 @@ namespace Draibot
 
         private async Task AddBirthday(SocketSlashCommand command)
         {
-            Console.WriteLine($"Adding birthday.");
             SocketUser birthdayTargetSocketUser = (SocketUser)command.Data.Options.ElementAt(0).Value;
             string birthDate = command.Data.Options.ElementAt(1).Value.ToString()!;
             DateTime parsedDate;
@@ -87,15 +89,14 @@ namespace Draibot
                 throw new Exception("Fecha de cumpleaños inválida.");
             }
 
-            UserBirthday userBirthday = new UserBirthday();
-            Console.WriteLine($"{parsedDate.Day} {parsedDate.Month} {parsedDate.Year}");
-            userBirthday.GuildID = command.GuildId;
-            userBirthday.UserID = birthdayTargetSocketUser.Id;
-            userBirthday.UserMention = birthdayTargetSocketUser.Mention;
-            userBirthday.Name = birthdayTargetSocketUser.GlobalName;
-            userBirthday.Day = parsedDate.Day;
-            userBirthday.Month = parsedDate.Month;
-            userBirthday.Year = parsedDate.Year;
+            UserBirthday userBirthday = new UserBirthday
+            {
+                GuildID = command.GuildId,
+                UserID = birthdayTargetSocketUser.Id,
+                UserMention = birthdayTargetSocketUser.Mention,
+                Name = birthdayTargetSocketUser.GlobalName ?? birthdayTargetSocketUser.Username,
+                BirthDate = new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day)
+            };
 
             JsonUtils.AddBirthdayToBirthdaysJson(userBirthday);
 
