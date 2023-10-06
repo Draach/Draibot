@@ -35,6 +35,7 @@ namespace Draibot
                 // Handle the exception or log it.
             }
         }
+
         private async Task RunAsync(string[] args)
         {
             if (!ValidateBotTokenArgument(args, out string botToken))
@@ -100,7 +101,7 @@ namespace Draibot
         {
             ulong welcomeChannelId = 1133166132803666021; // Replace with the ID of your welcome channel
             var welcomeChannel = client.GetChannel(welcomeChannelId) as SocketTextChannel;
-    
+
             string welcomeMessage = $"Welcome, {user.Mention}, to our server! Feel free to introduce yourself.";
             await welcomeChannel.SendMessageAsync(welcomeMessage);
         }
@@ -120,6 +121,24 @@ namespace Draibot
                 timeArgentinaCommand.WithName("hora-argentina")
                     .WithDescription("Devuelve la hora actual en Argentina.");
                 applicationCommandProperties.Add(timeArgentinaCommand.Build());
+
+                SlashCommandBuilder diceRollCommand = new SlashCommandBuilder();
+                diceRollCommand.WithName("roll").WithDescription("Lanza un dado con la cantidad de caras especificadas.")
+                    .AddOption(new SlashCommandOptionBuilder
+                        {
+                            Name = "caras",
+                            Type = ApplicationCommandOptionType.Integer,
+                            Description = "El tipo de dado a lanzar.",
+                            IsRequired = true
+                        }
+                        .AddChoice("1d4", 4)
+                        .AddChoice("1d6", 6)
+                        .AddChoice("1d8", 8)
+                        .AddChoice("1d10", 10)
+                        .AddChoice("1d12", 12)
+                        .AddChoice("1d20", 20)
+                        .AddChoice("1d100", 100));
+                applicationCommandProperties.Add(diceRollCommand.Build());
 
                 // TODO: Refactor/remove from here.
                 List<SlashCommandOptionBuilder> addBirthdayCommandOptions = new List<SlashCommandOptionBuilder>();

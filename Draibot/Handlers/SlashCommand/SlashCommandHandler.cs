@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 using Discord;
 using Discord.WebSocket;
 using Draibot.Utils;
@@ -45,10 +46,40 @@ namespace Draibot
                 case "listar-cumpleaños":
                     await GetBirthdays(command);
                     break;
+                case "roll":
+                    await Roll(command);
+                    break;
                 default:
                     await command.RespondAsync("Lo siento, parece que el comando ingresado no es válido.");
                     break;
             }
+        }
+
+        private async Task Roll(SocketSlashCommand command)
+        {
+            if (int.TryParse(command.Data.Options.ElementAt(0).Value.ToString(), out int faces))
+            {
+                int result = RollDice(faces);
+                await command.RespondAsync($"{command.User.Mention} ha obtenido un {result} en su tirada!");
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+
+        public int RollDice(int maxValue)
+        {
+            Random random = new Random();
+            if (maxValue < 1)
+            {
+                throw new ArgumentException("The maximum value must be at least 1.");
+            }
+
+
+            int result = random.Next(1, maxValue);
+
+            return result;
         }
 
         private async Task GetBirthdays(SocketSlashCommand command)
@@ -56,7 +87,7 @@ namespace Draibot
             StringBuilder birthdaysBuilder = new StringBuilder();
             SortedDictionary<DateTime, List<UserBirthday>> userBirthdays = JsonUtils.ReadFromJson();
             var sortedBirthdays = userBirthdays.OrderBy(pair => new DateTime(1, pair.Key.Month, pair.Key.Day)).ToList();
-            foreach (KeyValuePair<DateTime,List<UserBirthday>> userBirthdayKeyValuePair in sortedBirthdays)
+            foreach (KeyValuePair<DateTime, List<UserBirthday>> userBirthdayKeyValuePair in sortedBirthdays)
             {
                 foreach (UserBirthday userBirthday in userBirthdayKeyValuePair.Value)
                 {
