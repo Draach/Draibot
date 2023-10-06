@@ -60,7 +60,15 @@ namespace Draibot
             if (int.TryParse(command.Data.Options.ElementAt(0).Value.ToString(), out int faces))
             {
                 int result = RollDice(faces);
-                await command.RespondAsync($"{command.User.Mention} ha lanzado un dado de {faces} caras y ha obtenido un {result} como resultado!");
+                string responseMessage =
+                    $"{command.User.Mention} ha lanzado un dado de {faces} caras y ha obtenido un {result} como resultado!";
+
+                if (result == 1)
+                    responseMessage += " Critical failure!";
+                else if (result == faces)
+                    responseMessage += " Critical success!";
+                
+                await command.RespondAsync(responseMessage);
             }
             else
             {
@@ -77,7 +85,7 @@ namespace Draibot
             }
 
 
-            int result = random.Next(1, maxValue);
+            int result = random.Next(1, maxValue+1);
 
             return result;
         }
