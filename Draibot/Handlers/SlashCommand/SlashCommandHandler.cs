@@ -60,7 +60,7 @@ namespace Draibot
             if (int.TryParse(command.Data.Options.ElementAt(0).Value.ToString(), out int faces))
             {
                 int result = RollDice(faces);
-                await command.RespondAsync($"{command.User.Mention} ha obtenido un {result} en su tirada!");
+                await command.RespondAsync($"{command.User.Mention} ha lanzado un dado de {faces} caras y ha obtenido un {result} como resultado!");
             }
             else
             {
